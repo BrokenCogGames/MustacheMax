@@ -35,6 +35,11 @@ var is_dashing = false
 var has_dashed = false
 var is_grabbing = false
 
+# Camera variables
+var prev_anchor
+var current_anchor
+var camera
+
 func _physics_process(delta):
 	# If vertical velocity is less than the max falling speed and you are not
 	# dashing, apply more gravity to the sprite.
@@ -50,6 +55,8 @@ func _physics_process(delta):
 	get_input_axis()
 	dash(delta)
 	wall_slide(delta)
+	#if camera != null:
+	#	print(camera.position)
 	
 	# Handle basic vertical movement mechanics
 	if wall_jump_timer > WALL_JUMP_TIME:
@@ -213,3 +220,49 @@ func set_jump_height(delta):
 
 	
 	
+
+
+func _on_Area2D_area_entered(area):
+	# Check if it's a room!
+	# TODO this should iterate through a list of rooms to see which one it is...
+	camera = self.find_node("PlayerAnchor").get_child(0)
+	var destination_position
+	var origin_position
+	print(area.name)
+	if "Room" in area.name:
+		print("In " + area.name)
+		prev_anchor = current_anchor
+		print(area.get_owner().name)
+		current_anchor = area.get_owner().find_node("CameraAnchor")
+	
+	if prev_anchor != null:
+		# Tween here please
+		print("Tween!")
+		destination_position = current_anchor.get_global_position()
+		origin_position = prev_anchor.get_global_position()
+	else:
+		print("?")
+		print(camera.limit_bottom)
+		print(camera.limit_top)
+		print(camera.limit_left)
+		print(camera.limit_right)
+		var area_limits = area.get_child(0).get_shape().get_extents()
+		print(area_limits)
+		#print(area.get_size())
+		camera.limit_top = -area_limits[1]
+		camera.limit_bottom = area_limits[1]
+		camera.limit_left =  -area_limits[0]
+		camera.limit_right = area_limits[0]
+		print(camera.limit_top)
+		print(camera.limit_bottom)
+		print(camera.limit_left)
+		print(camera.limit_right)
+		print(camera.position)
+		print(current_anchor.position)
+		print(camera.get_global_position())
+		print(current_anchor.get_global_position())
+		camera.set_global_position(current_anchor.get_global_position())
+		#print(area.to_local(current_anchor.get_global_position()))
+		print(camera.position)
+		print(camera.get_global_position())
+	pass # Replace with function body.
