@@ -66,6 +66,7 @@ func _physics_process(delta):
 	# Process user input, dash logic, and wallslide logic
 	get_input_axis()
 	dash(delta)
+	double_jump(delta)
 	wall_slide(delta)
 	
 	# Handle basic vertical movement mechanics
@@ -129,6 +130,19 @@ func get_input_axis():
 	axis.x = int(Input.is_action_pressed("ui_right")) - int(Input.is_action_pressed("ui_left"))
 	axis.y = int(Input.is_action_pressed("ui_down")) - int(Input.is_action_pressed("ui_up"))
 	axis = axis.normalized()
+	
+func double_jump(delta):
+	if !has_double_jumped:
+		if !can_jump and !$Rotatable/RayCast2D.is_colliding():
+			# If you can't jump (in air) and you haven't double jumped yet...
+			if Input.is_action_just_pressed("jump"):
+				has_double_jumped = true
+				jump(delta)
+				friction_on_air()
+				
+	if is_on_floor() and velocity.y >= 0:
+		has_double_jumped = false
+		sprite_color = "red"
 	
 func dash(delta):
 	if !has_dashed:
