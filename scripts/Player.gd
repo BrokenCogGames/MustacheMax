@@ -3,27 +3,30 @@ extends KinematicBody2D
 const ACCELERATION = 1000
 const MAX_SPEED = 6000
 const LIMIT_SPEED_Y = 1000
-const JUMP_HEIGHT = 12000
-const MIN_JUMP_HEIGHT = 4000
+const JUMP_HEIGHT = 10000
+const MIN_JUMP_HEIGHT = 2000
 const MAX_COYOTE_TIME = 6
 const JUMP_BUFFER_TIME = 10
-const WALL_JUMP_AMOUNT = 5000
+const WALL_JUMP_AMOUNT = 4000
 const WALL_JUMP_TIME = 10
 const WALL_SLIDE_FACTOR = 0.8
-const WALL_HORIZONTAL_TIME = 30
-const GRAVITY = 900
+const WALL_HORIZONTAL_TIME = 10
+const GRAVITY = 600
 const DASH_SPEED = 12000
+const WALL_JUMP_BUFFER = 4
 
 # Physics vars
 var velocity = Vector2()
 var axis = Vector2()
+var wall_jump_direction = 1
 
 # Timers
 var coyote_timer = 0
 var jump_buffer_timer = 0
-var wall_jump_timer = 0
+var wall_jump_timer = 1000
 var wall_horizontal_timer = 0
 var dash_time = 0
+var wall_press_timer = 0
 
 # Sprite state
 var sprite_color = "red"
@@ -34,6 +37,7 @@ var trail = false
 var is_dashing = false
 var has_dashed = false
 var is_grabbing = false
+var pressed_to_wall = false
 
 func _physics_process(delta):
 	# If vertical velocity is less than the max falling speed and you are not
@@ -46,6 +50,17 @@ func _physics_process(delta):
 	# to move in air... I think
 	friction = false
 	
+	if wall_press_timer > 0:
+		print("pressed")
+		wall_press_timer -= 1
+	
+	if $Rotatable/RayCast2D.is_colliding():
+		pressed_to_wall = true
+		
+	if $Rotatable/RayCast2D.is_colliding() == false and pressed_to_wall:
+		pressed_to_wall = false
+		wall_press_timer = WALL_JUMP_BUFFER
+	
 	# Process user input, dash logic, and wallslide logic
 	get_input_axis()
 	dash(delta)
@@ -53,11 +68,13 @@ func _physics_process(delta):
 	
 	# Handle basic vertical movement mechanics
 	if wall_jump_timer > WALL_JUMP_TIME:
-		wall_jump_timer = WALL_JUMP_AMOUNT
+		#wall_jump_timer = WALL_HORIZONTAL_TIME
 		# If you are not grabbing or dashing, performs horizontal movement
 		if !is_dashing and !is_grabbing:
 			horizontal_movement(delta)
 	else:
+		#print("build up %d" % wall_jump_timer)
+		#velocity.x = -WALL_JUMP_AMOUNT * wall_jump_direction * delta
 		wall_jump_timer += 1
 		
 	# If you can't jump or wall slide then you must be in the air,
@@ -65,9 +82,11 @@ func _physics_process(delta):
 	if !can_jump:
 		if !wall_sliding:
 			if velocity.y >= 0:
-				print("Play: Fall Animation")
+				pass
+				#print("Play: Fall Animation")
 			elif velocity.y < 0:
-				print("Play: Jump Animation")
+				pass
+				#print("Play: Jump Animation")
 	
 	# Jumping mechanics and coyote time
 	if is_on_floor():
@@ -89,7 +108,7 @@ func _physics_process(delta):
 			jump(delta)
 			friction_on_air()
 		else:
-			if $Rotatable/RayCast2D.is_colliding():
+			if $Rotatable/RayCast2D.is_colliding() or is_pressing_away_from_wall():
 				wall_jump(delta)
 			friction_on_air()
 			jump_buffer_timer = JUMP_BUFFER_TIME
@@ -98,7 +117,6 @@ func _physics_process(delta):
 	jump_buffer(delta)
 	
 	velocity = move_and_slide(velocity, Vector2.UP)
-
 #
 # Get a normalized vector pointing in the direction of the players movement
 # according to the input keys. Pressing LEFT and RIGHT at the same time cancels
@@ -113,6 +131,9 @@ func get_input_axis():
 func dash(delta):
 	if !has_dashed:
 		if Input.is_action_just_pressed("dash"):
+			print("dash")
+			if axis == Vector2.ZERO:
+				axis.x = $Rotatable.scale.x
 			velocity = axis * delta * DASH_SPEED
 			sprite_color = "blue"
 			Input.start_joy_vibration(0, 1, 1, 0.2)
@@ -132,14 +153,48 @@ func dash(delta):
 	if is_on_floor() and velocity.y >= 0:
 		has_dashed = false
 		sprite_color = "red"
+
+#
+# Tells you if the player is pressing actively against a wall
+#
+func is_pressing_against_wall():
+	if ($Rotatable.scale.x < 0 and Input.is_action_pressed("ui_left")) or ($Rotatable.scale.x > 0 and Input.is_action_pressed("ui_right")):
+		return true
+	return false
+	
+#
+# Tells you if the player is pressing actively away from a wall
+#
+func is_pressing_away_from_wall():
+	if wall_press_timer > 0:
+		return true
+	return false
 	
 func wall_slide(delta):
-	pass
+	if !can_jump:
+		if $Rotatable/RayCast2D.is_colliding():
+			if is_pressing_against_wall():
+				wall_sliding = true
+				if Input.is_action_pressed("grab"):
+					is_grabbing = true
+					if axis.y != 0:
+						velocity.y = axis.y * 12000 * delta
+						#$AnimationPlayer.play(str(sprite_color, "Climb"))
+					else:
+						velocity.y = 0
+						#$AnimationPlayer.play(str(spriteColor, "Wall Slide"))
+				else:
+					is_grabbing = false
+					velocity.y = velocity.y * WALL_SLIDE_FACTOR
+					#$AnimationPlayer.play(str(spriteColor, "Wall Slide"))
+		else:
+			wall_sliding = false
+			is_grabbing = false
 	
 func horizontal_movement(delta):
 	if Input.is_action_pressed("ui_right"):
 		if $Rotatable/RayCast2D.is_colliding():
-			yield(get_tree().create_timer(0.1),"timeout")
+			#yield(get_tree().create_timer(0.1),"timeout")
 			velocity.x = min(velocity.x + ACCELERATION * delta, MAX_SPEED * delta)
 			$Rotatable.scale.x = 1
 			if can_jump:
@@ -154,7 +209,7 @@ func horizontal_movement(delta):
 
 	elif Input.is_action_pressed("ui_left"):
 		if $Rotatable/RayCast2D.is_colliding():
-			yield(get_tree().create_timer(0.1),"timeout")
+			#yield(get_tree().create_timer(0.1),"timeout")
 			velocity.x = max(velocity.x - ACCELERATION * delta, -MAX_SPEED * delta)
 			$Rotatable.scale.x = -1
 			if can_jump:
@@ -193,21 +248,33 @@ func jump(delta):
 	velocity.y = -JUMP_HEIGHT * delta
 	
 func wall_jump(delta):
+	print("wall jump")
 	wall_jump_timer = 0
-	velocity.x = -WALL_JUMP_AMOUNT * $Rotatable.scale.x * delta
+	var multiplier = 1
+	var dir = $Rotatable.scale.x
+	if is_pressing_away_from_wall():
+		dir = -dir
+	if is_pressing_against_wall() or is_pressing_away_from_wall():
+		multiplier = 1.5
+	velocity.x = -WALL_JUMP_AMOUNT * dir * delta * multiplier
 	velocity.y = -JUMP_HEIGHT * delta
-	$Rotatable.scale.x = -$Rotatable.scale.x
+	
+	if is_pressing_against_wall():
+		print("rotate")
+		$Rotatable.scale.x = -dir
+		wall_jump_direction = dir
 	
 
 func friction_on_air():
-	pass
+	if friction:
+		velocity.x = lerp(velocity.x, 0, 0.01)
 
 #
 # This function allows the user to cancel a jump already in mid-air. This would
 # be used if a user stopped pressing jump or released the up button for instance
 #
 func set_jump_height(delta):
-	if Input.is_action_just_released("ui_up"):
+	if Input.is_action_just_released("jump"):
 		if velocity.y < -MIN_JUMP_HEIGHT * delta:
 			velocity.y = -MIN_JUMP_HEIGHT * delta
 
