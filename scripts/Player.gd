@@ -1,18 +1,18 @@
 extends KinematicBody2D
 
-const ACCELERATION = 3000
-const MAX_SPEED = 18000
-const LIMIT_SPEED_Y = 1200
-const JUMP_HEIGHT = 36000
-const MIN_JUMP_HEIGHT = 12000
+const ACCELERATION = 1000
+const MAX_SPEED = 6000
+const LIMIT_SPEED_Y = 1000
+const JUMP_HEIGHT = 12000
+const MIN_JUMP_HEIGHT = 4000
 const MAX_COYOTE_TIME = 6
 const JUMP_BUFFER_TIME = 10
-const WALL_JUMP_AMOUNT = 18000
+const WALL_JUMP_AMOUNT = 5000
 const WALL_JUMP_TIME = 10
 const WALL_SLIDE_FACTOR = 0.8
 const WALL_HORIZONTAL_TIME = 30
-const GRAVITY = 2100
-const DASH_SPEED = 36000
+const GRAVITY = 900
+const DASH_SPEED = 12000
 
 # Physics vars
 var velocity = Vector2()
@@ -99,17 +99,78 @@ func _physics_process(delta):
 	
 	velocity = move_and_slide(velocity, Vector2.UP)
 
+#
+# Get a normalized vector pointing in the direction of the players movement
+# according to the input keys. Pressing LEFT and RIGHT at the same time cancels
+# eacho ther out. This allows for 8 different directions of movement.
+#
 func get_input_axis():
-	pass
+	axis = Vector2.ZERO
+	axis.x = int(Input.is_action_pressed("ui_right")) - int(Input.is_action_pressed("ui_left"))
+	axis.y = int(Input.is_action_pressed("ui_down")) - int(Input.is_action_pressed("ui_up"))
+	axis = axis.normalized()
 	
 func dash(delta):
-	pass
+	if !has_dashed:
+		if Input.is_action_just_pressed("dash"):
+			velocity = axis * delta * DASH_SPEED
+			sprite_color = "blue"
+			Input.start_joy_vibration(0, 1, 1, 0.2)
+			is_dashing = true
+			has_dashed = true
+			#$Camera/ShakeCamera2D.add_trauma(0.5)
+	
+	if is_dashing:
+		trail = true
+		dash_time += 1
+		# huh?
+		if dash_time >= int(0.25 * 1 / delta):
+			is_dashing = false
+			trail = false
+			dash_time = 0
+			
+	if is_on_floor() and velocity.y >= 0:
+		has_dashed = false
+		sprite_color = "red"
 	
 func wall_slide(delta):
 	pass
 	
 func horizontal_movement(delta):
-	pass
+	if Input.is_action_pressed("ui_right"):
+		if $Rotatable/RayCast2D.is_colliding():
+			yield(get_tree().create_timer(0.1),"timeout")
+			velocity.x = min(velocity.x + ACCELERATION * delta, MAX_SPEED * delta)
+			$Rotatable.scale.x = 1
+			if can_jump:
+				pass
+				#$AnimationPlayer.play(str(sprite_color, "Run"))
+		else:
+			velocity.x = min(velocity.x + ACCELERATION * delta, MAX_SPEED * delta)
+			$Rotatable.scale.x = 1
+			if can_jump:
+				pass
+				#$AnimationPlayer.play(str(sprite_color, "Run"))
+
+	elif Input.is_action_pressed("ui_left"):
+		if $Rotatable/RayCast2D.is_colliding():
+			yield(get_tree().create_timer(0.1),"timeout")
+			velocity.x = max(velocity.x - ACCELERATION * delta, -MAX_SPEED * delta)
+			$Rotatable.scale.x = -1
+			if can_jump:
+				pass
+				#$AnimationPlayer.play(str(sprite_color, "Run"))
+		else:
+			velocity.x = max(velocity.x - ACCELERATION * delta, -MAX_SPEED * delta)
+			$Rotatable.scale.x = -1
+			if can_jump:
+				pass
+				#$AnimationPlayer.play(str(sprite_color, "Run"))
+	else:
+		velocity.x = lerp(velocity.x, 0, 0.4)
+		if can_jump:
+			pass
+			#$AnimationPlayer.play(str(sprite_color, "Idle"))
 	
 #
 # The jump buffer is used to allow the player to input a JUMP command within
