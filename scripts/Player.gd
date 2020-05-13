@@ -3,17 +3,17 @@ extends KinematicBody2D
 const ACCELERATION = 1000
 const MAX_SPEED = 6000
 const LIMIT_SPEED_Y = 1000
-const JUMP_HEIGHT = 10000
+const JUMP_HEIGHT = 11000
 const MIN_JUMP_HEIGHT = 2000
 const MAX_COYOTE_TIME = 6
 const JUMP_BUFFER_TIME = 10
-const WALL_JUMP_AMOUNT = 4000
-const WALL_JUMP_TIME = 10
-const WALL_SLIDE_FACTOR = 0.8
+const WALL_JUMP_AMOUNT = 3000
+const WALL_JUMP_TIME = 16
+const WALL_SLIDE_FACTOR = 0.9
 const WALL_HORIZONTAL_TIME = 10
 const GRAVITY = 600
 const DASH_SPEED = 12000
-const WALL_JUMP_BUFFER = 4
+const WALL_JUMP_BUFFER = 2
 
 # Physics vars
 var velocity = Vector2()
@@ -38,6 +38,8 @@ var is_dashing = false
 var has_dashed = false
 var is_grabbing = false
 var pressed_to_wall = false
+var has_double_jumped = false
+var is_double_jumping = false
 
 func _physics_process(delta):
 	# If vertical velocity is less than the max falling speed and you are not
@@ -263,6 +265,9 @@ func wall_jump(delta):
 		print("rotate")
 		$Rotatable.scale.x = -dir
 		wall_jump_direction = dir
+		
+	if is_pressing_away_from_wall():
+		wall_press_timer = 0
 	
 
 func friction_on_air():
