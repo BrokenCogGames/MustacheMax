@@ -18,6 +18,11 @@ _global_script_class_icons={
 config/name="Mustache Max"
 run/main_scene="res://scenes/MainMenu.tscn"
 
+[autoload]
+
+MusicController="*res://scenes/MusicController.tscn"
+GameController="*res://scenes/GameController.tscn"
+
 [display]
 
 window/size/width=320

@@ -9,11 +9,23 @@ enum OptionType {
 }
 
 export var option_name = "option"
-export var current_value = 100
+export var current_value = 100 setget set_current_value
 export var min_value = 0
 export var max_value = 100
 export(OptionType) var option_type = OptionType.PERCENTAGE
-export var bool_value = false
+export var bool_value = false setget set_bool_value
+
+func set_current_value(new_value):
+	if new_value <= max_value and new_value >= min_value:
+		current_value = new_value
+		$HBoxContainer/Value.text = "%d%%" % current_value
+
+func set_bool_value(new_value):
+	bool_value = new_value
+	if bool_value:
+		$HBoxContainer/Value.text = "ON"
+	else:
+		$HBoxContainer/Value.text = "OFF"
 
 func _ready():
 	$Option.text = option_name

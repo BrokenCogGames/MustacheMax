@@ -10,6 +10,10 @@ enum GameOption {
 var current_option = GameOption.NONE
 
 func _ready():
+	print("set values")
+	$Menu/VBoxContainer/MusicVolumeOption.set_current_value(MusicController.music_volume)
+	$Menu/VBoxContainer/FXVolumeOption.set_current_value(MusicController.fx_volume)
+	$Menu/VBoxContainer/SpeedRunTimerOption.set_bool_value(GameController.speed_run_clock_enabled )
 	$Menu/VBoxContainer/MusicVolumeOption.grab_focus()
 
 func _process(delta):
@@ -34,12 +38,15 @@ func _on_BackButton_pressed():
 
 func _on_MusicVolumeOption_percentage_changed(value):
 	print("Changed music volume to: %d%%" % value)
+	MusicController.set_music_voume(value)
 
 func _on_FXVolumeOption_percentage_changed(value):
 	print("Changed fx volume to: %d%%" % value)
+	MusicController.set_fx_voume(value)
 
 func _on_SpeedRunTimerOption_on_off_changed(enabled):
 	print("Changed speedrun state to: %s" % enabled)
+	GameController.speed_run_clock_enabled = enabled
 
 func _on_MusicVolumeOption_focus_entered():
 	current_option = GameOption.MUSIC_VOLUME

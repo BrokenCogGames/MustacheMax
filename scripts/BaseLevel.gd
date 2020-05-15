@@ -9,6 +9,7 @@ extends Node2D
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	$Player.room_entered_coordinates = $Player.global_position
+	$SpeedRunTimer.start()
 
 func _process(delta):
 	if Input.is_action_pressed("ui_cancel"):
