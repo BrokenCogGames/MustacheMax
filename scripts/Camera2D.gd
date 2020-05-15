@@ -8,6 +8,7 @@ func _process(delta):
 	var y = floor(pos.y / 180) * 180
 	
 	if self.global_position != Vector2(x, y) and is_moving == false:
+		get_node("../Player").room_entered_coordinates = pos + Vector2(0, 16)
 		is_moving = true
 		get_tree().paused = true
 		$Tween.interpolate_property(self, "global_position", self.global_position, Vector2(x, y), 0.5, Tween.TRANS_LINEAR)

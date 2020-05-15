@@ -24,6 +24,7 @@ margin_left = 113.877
 margin_top = 156.913
 margin_right = 205.877
 margin_bottom = 174.913
+toggle_mode = true
 texture_normal = ExtResource( 1 )
 texture_pressed = ExtResource( 4 )
 __meta__ = {
@@ -103,4 +104,5 @@ margin_bottom = 57.0
 rect_pivot_offset = Vector2( -148.73, -32.8301 )
 nickname = "Bryant"
 time = "00:21"
+[connection signal="focus_entered" from="BackButton" to="." method="_on_BackButton_focus_entered"]
 [connection signal="pressed" from="BackButton" to="." method="_on_BackButton_pressed"]

@@ -31,10 +31,12 @@ __meta__ = {
 }
 
 [node name="PlayButton" type="TextureButton" parent="."]
-margin_left = 116.244
-margin_top = 102.892
-margin_right = 209.244
-margin_bottom = 123.892
+margin_left = 116.0
+margin_top = 103.0
+margin_right = 209.0
+margin_bottom = 122.0
+focus_neighbour_bottom = NodePath("../OptionButton")
+toggle_mode = true
 texture_normal = ExtResource( 3 )
 texture_pressed = ExtResource( 9 )
 __meta__ = {
@@ -46,6 +48,9 @@ margin_left = 116.0
 margin_top = 124.0
 margin_right = 208.0
 margin_bottom = 142.0
+focus_neighbour_top = NodePath("../PlayButton")
+focus_neighbour_bottom = NodePath("../LeaderboardButton")
+toggle_mode = true
 texture_normal = ExtResource( 5 )
 texture_pressed = ExtResource( 7 )
 __meta__ = {
@@ -57,11 +62,19 @@ margin_left = 116.071
 margin_top = 144.758
 margin_right = 208.071
 margin_bottom = 164.758
+focus_neighbour_top = NodePath("../OptionButton")
+toggle_mode = true
 texture_normal = ExtResource( 6 )
 texture_pressed = ExtResource( 8 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+[connection signal="focus_entered" from="PlayButton" to="." method="_on_PlayButton_focus_entered"]
+[connection signal="focus_exited" from="PlayButton" to="." method="_on_PlayButton_focus_exited"]
 [connection signal="pressed" from="PlayButton" to="." method="_on_PlayButton_pressed"]
+[connection signal="focus_entered" from="OptionButton" to="." method="_on_OptionButton_focus_entered"]
+[connection signal="focus_exited" from="OptionButton" to="." method="_on_OptionButton_focus_exited"]
 [connection signal="pressed" from="OptionButton" to="." method="_on_OptionButton_pressed"]
+[connection signal="focus_entered" from="LeaderboardButton" to="." method="_on_LeaderboardButton_focus_entered"]
+[connection signal="focus_exited" from="LeaderboardButton" to="." method="_on_LeaderboardButton_focus_exited"]
 [connection signal="pressed" from="LeaderboardButton" to="." method="_on_LeaderboardButton_pressed"]

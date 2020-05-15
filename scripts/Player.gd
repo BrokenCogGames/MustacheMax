@@ -2,7 +2,7 @@ extends KinematicBody2D
 
 const ACCELERATION = 1000
 const MAX_SPEED = 6000
-const LIMIT_SPEED_Y = 1000
+const LIMIT_SPEED_Y = 200
 const JUMP_HEIGHT = 11000
 const MIN_JUMP_HEIGHT = 2000
 const MAX_COYOTE_TIME = 6
@@ -41,6 +41,8 @@ var pressed_to_wall = false
 var has_double_jumped = false
 var is_double_jumping = false
 
+var room_entered_coordinates = Vector2.ZERO
+
 func _physics_process(delta):
 	# If vertical velocity is less than the max falling speed and you are not
 	# dashing, apply more gravity to the sprite.
@@ -53,7 +55,6 @@ func _physics_process(delta):
 	friction = false
 	
 	if wall_press_timer > 0:
-		print("pressed")
 		wall_press_timer -= 1
 	
 	if $Rotatable/RayCast2D.is_colliding():
@@ -65,7 +66,7 @@ func _physics_process(delta):
 	
 	# Process user input, dash logic, and wallslide logic
 	get_input_axis()
-	dash(delta)
+	#dash(delta)
 	double_jump(delta)
 	wall_slide(delta)
 	
@@ -85,10 +86,10 @@ func _physics_process(delta):
 	if !can_jump:
 		if !wall_sliding:
 			if velocity.y >= 0:
-				pass
+				$AnimationPlayer.play("fall")
 				#print("Play: Fall Animation")
 			elif velocity.y < 0:
-				pass
+				$AnimationPlayer.play("jump")
 				#print("Play: Jump Animation")
 	
 	# Jumping mechanics and coyote time
@@ -198,10 +199,12 @@ func wall_slide(delta):
 						#$AnimationPlayer.play(str(sprite_color, "Climb"))
 					else:
 						velocity.y = 0
+						$AnimationPlayer.play("fall")
 						#$AnimationPlayer.play(str(spriteColor, "Wall Slide"))
 				else:
 					is_grabbing = false
 					velocity.y = velocity.y * WALL_SLIDE_FACTOR
+					$AnimationPlayer.play("fall")
 					#$AnimationPlayer.play(str(spriteColor, "Wall Slide"))
 		else:
 			wall_sliding = false
@@ -214,13 +217,13 @@ func horizontal_movement(delta):
 			velocity.x = min(velocity.x + ACCELERATION * delta, MAX_SPEED * delta)
 			$Rotatable.scale.x = 1
 			if can_jump:
-				pass
+				$AnimationPlayer.play("run")
 				#$AnimationPlayer.play(str(sprite_color, "Run"))
 		else:
 			velocity.x = min(velocity.x + ACCELERATION * delta, MAX_SPEED * delta)
 			$Rotatable.scale.x = 1
 			if can_jump:
-				pass
+				$AnimationPlayer.play("run")
 				#$AnimationPlayer.play(str(sprite_color, "Run"))
 
 	elif Input.is_action_pressed("ui_left"):
@@ -229,18 +232,18 @@ func horizontal_movement(delta):
 			velocity.x = max(velocity.x - ACCELERATION * delta, -MAX_SPEED * delta)
 			$Rotatable.scale.x = -1
 			if can_jump:
-				pass
+				$AnimationPlayer.play("run")
 				#$AnimationPlayer.play(str(sprite_color, "Run"))
 		else:
 			velocity.x = max(velocity.x - ACCELERATION * delta, -MAX_SPEED * delta)
 			$Rotatable.scale.x = -1
 			if can_jump:
-				pass
+				$AnimationPlayer.play("run")
 				#$AnimationPlayer.play(str(sprite_color, "Run"))
 	else:
 		velocity.x = lerp(velocity.x, 0, 0.4)
 		if can_jump:
-			pass
+			$AnimationPlayer.play("idle")
 			#$AnimationPlayer.play(str(sprite_color, "Idle"))
 	
 #
@@ -264,7 +267,6 @@ func jump(delta):
 	velocity.y = -JUMP_HEIGHT * delta
 	
 func wall_jump(delta):
-	print("wall jump")
 	wall_jump_timer = 0
 	var multiplier = 1
 	var dir = $Rotatable.scale.x
@@ -276,7 +278,6 @@ func wall_jump(delta):
 	velocity.y = -JUMP_HEIGHT * delta
 	
 	if is_pressing_against_wall():
-		print("rotate")
 		$Rotatable.scale.x = -dir
 		wall_jump_direction = dir
 		
@@ -286,7 +287,8 @@ func wall_jump(delta):
 
 func friction_on_air():
 	if friction:
-		velocity.x = lerp(velocity.x, 0, 0.01)
+		print("friction")
+		velocity.x = lerp(velocity.x, 0, 0.10)
 
 #
 # This function allows the user to cancel a jump already in mid-air. This would
@@ -297,5 +299,12 @@ func set_jump_height(delta):
 		if velocity.y < -MIN_JUMP_HEIGHT * delta:
 			velocity.y = -MIN_JUMP_HEIGHT * delta
 
-	
-	
+func _on_SpikeDetectArea_body_entered(body):
+	if body.name == "Spikes":
+		print("You died by spikes!")
+		get_tree().paused = true
+		$Particles2D.emitting = true
+		yield(get_tree().create_timer(1.0), "timeout")
+		self.global_position = room_entered_coordinates
+		get_tree().paused = false
+		
