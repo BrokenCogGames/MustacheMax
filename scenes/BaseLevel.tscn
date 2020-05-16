@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://scripts/BaseLevel.gd" type="Script" id=1]
 [ext_resource path="res://resources/tilesets/tileset_0.tres" type="TileSet" id=2]
@@ -11,6 +11,8 @@
 [ext_resource path="res://scenes/LightBulb.tscn" type="PackedScene" id=9]
 [ext_resource path="res://scenes/LightbulbsFound.tscn" type="PackedScene" id=10]
 [ext_resource path="res://scenes/FPS.tscn" type="PackedScene" id=11]
+[ext_resource path="res://scenes/DiskSawCircle.tscn" type="PackedScene" id=12]
+[ext_resource path="res://scenes/DiskSawLine.tscn" type="PackedScene" id=13]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 338.889, 179.864 )
@@ -28,21 +30,27 @@ tile_data = PoolIntArray( -1507369, 1, 0, -1507368, 1, 0, -1507367, 1, 0, -15073
 
 [node name="LightBulb_1" parent="." instance=ExtResource( 9 )]
 position = Vector2( 149.493, 40.4672 )
+light_on = false
 
 [node name="LightBulb_2" parent="." instance=ExtResource( 9 )]
 position = Vector2( 189.057, -151.407 )
+light_on = false
 
 [node name="LightBulb_3" parent="." instance=ExtResource( 9 )]
 position = Vector2( 532.537, 40.5104 )
+light_on = false
 
 [node name="LightBulb_4" parent="." instance=ExtResource( 9 )]
 position = Vector2( 382.59, 216.422 )
+light_on = false
 
 [node name="LightBulb_5" parent="." instance=ExtResource( 9 )]
 position = Vector2( -300.567, -159.403 )
+light_on = false
 
 [node name="LightBulb_6" parent="." instance=ExtResource( 9 )]
 position = Vector2( 938.807, 16.482 )
+light_on = false
 
 [node name="Midground" type="TileMap" parent="."]
 modulate = Color( 0.670588, 0.670588, 0.670588, 1 )
@@ -93,7 +101,28 @@ shape = SubResource( 1 )
 color = Color( 0.752941, 0.752941, 0.752941, 1 )
 
 [node name="LightbulbsFound" parent="." instance=ExtResource( 10 )]
+lights_found = 0
+lights_total = 3
 
 [node name="FPS" parent="." instance=ExtResource( 11 )]
+
+[node name="DiskSawCircle" parent="." instance=ExtResource( 12 )]
+position = Vector2( 150.563, 82.687 )
+RotateSpeed = 2.0
+animation_duration = 0.45
+
+[node name="RadiusPosition" type="Position2D" parent="DiskSawCircle"]
+position = Vector2( -1.19165, -39.7215 )
+
+[node name="DiskSawLine" parent="." instance=ExtResource( 13 )]
+position = Vector2( 214.912, 78.3176 )
+speed = 30.0
+animation_duration = 0.45
+
+[node name="Position1" type="Position2D" parent="DiskSawLine"]
+position = Vector2( -0.397217, -35.7493 )
+
+[node name="Position2" type="Position2D" parent="DiskSawLine"]
+position = Vector2( 1.58887, 42.1048 )
 [connection signal="body_entered" from="Camera2D/CameraArea" to="Camera2D" method="_on_CameraArea_body_entered"]
 [connection signal="body_exited" from="Camera2D/CameraArea" to="Camera2D" method="_on_CameraArea_body_exited"]
