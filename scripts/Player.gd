@@ -314,3 +314,11 @@ func _on_SpikeDetectArea_body_entered(body):
 			get_node("../LightbulbsFound").found_new_light()
 		lb.light_on = true
 		
+
+func _saw_hit():
+	print("You died by saw!")
+	get_tree().paused = true
+	$Particles2D.emitting = true
+	yield(get_tree().create_timer(1.0), "timeout")
+	self.global_position = room_entered_coordinates
+	get_tree().paused = false
