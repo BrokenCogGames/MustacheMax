@@ -3,6 +3,7 @@ extends CanvasLayer
 var current_time = 0
 var start_time = 0
 var running = false
+var last_tick = 0
 
 enum TimeFormat {
 	FORMAT_HOURS   = 1 << 0,
@@ -53,4 +54,6 @@ func stop():
 	
 func _process(delta):
 	if running:
-		$TimerLbl.text = format_time(OS.get_ticks_msec() - start_time)
+		if OS.get_ticks_msec() > last_tick:
+			last_tick = OS.get_ticks_msec()
+			$TimerLbl.text = format_time(last_tick - start_time)

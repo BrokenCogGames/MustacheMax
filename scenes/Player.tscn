@@ -9,7 +9,7 @@ extents = Vector2( 3.95669, 7.46061 )
 [sub_resource type="RectangleShape2D" id=2]
 extents = Vector2( 1.42606, 7.89119 )
 
-[sub_resource type="Animation" id=7]
+[sub_resource type="Animation" id=3]
 resource_name = "crouch"
 tracks/0/type = "value"
 tracks/0/path = NodePath("Rotatable/Sprite:frame")
@@ -24,8 +24,7 @@ tracks/0/keys = {
 "values": [ 4 ]
 }
 
-[sub_resource type="Animation" id=3]
-resource_name = "fall"
+[sub_resource type="Animation" id=4]
 tracks/0/type = "value"
 tracks/0/path = NodePath("Rotatable/Sprite:frame")
 tracks/0/interp = 1
@@ -39,8 +38,7 @@ tracks/0/keys = {
 "values": [ 3 ]
 }
 
-[sub_resource type="Animation" id=4]
-resource_name = "idle"
+[sub_resource type="Animation" id=5]
 tracks/0/type = "value"
 tracks/0/path = NodePath("Rotatable/Sprite:frame")
 tracks/0/interp = 1
@@ -54,8 +52,7 @@ tracks/0/keys = {
 "values": [ 0 ]
 }
 
-[sub_resource type="Animation" id=5]
-resource_name = "jump"
+[sub_resource type="Animation" id=6]
 tracks/0/type = "value"
 tracks/0/path = NodePath("Rotatable/Sprite:frame")
 tracks/0/interp = 1
@@ -69,8 +66,7 @@ tracks/0/keys = {
 "values": [ 5 ]
 }
 
-[sub_resource type="Animation" id=6]
-resource_name = "run"
+[sub_resource type="Animation" id=7]
 length = 2.0
 loop = true
 step = 1.0
@@ -108,8 +104,8 @@ position = Vector2( 0.146183, 0.389826 )
 shape = SubResource( 1 )
 
 [node name="SpikeDetectArea" type="Area2D" parent="."]
-collision_layer = 4
-collision_mask = 4
+collision_layer = 12
+collision_mask = 12
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SpikeDetectArea"]
 position = Vector2( 0.0672951, 0.433526 )
@@ -117,11 +113,11 @@ shape = SubResource( 2 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 playback_speed = 5.0
-anims/crouch = SubResource( 7 )
-anims/fall = SubResource( 3 )
-anims/idle = SubResource( 4 )
-anims/jump = SubResource( 5 )
-anims/run = SubResource( 6 )
+anims/crouch = SubResource( 3 )
+anims/fall = SubResource( 4 )
+anims/idle = SubResource( 5 )
+anims/jump = SubResource( 6 )
+anims/run = SubResource( 7 )
 
 [node name="Particles2D" type="CPUParticles2D" parent="."]
 pause_mode = 2

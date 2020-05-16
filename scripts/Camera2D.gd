@@ -17,3 +17,16 @@ func _process(delta):
 		get_tree().paused = false
 		print("done")
 		is_moving = false
+
+func _on_CameraArea_body_entered(body):
+	var lightbulb = body as LightBulb
+	if lightbulb != null:
+		print("Found: %s" % body.name)
+		#if lightbulb.light_has_been_turned_on:
+		#	lightbulb.light_on = true
+
+func _on_CameraArea_body_exited(body):
+	var lightbulb = body as LightBulb
+	if lightbulb != null:
+		#lightbulb.light_on = false
+		print("Lost: %s" % body.name)

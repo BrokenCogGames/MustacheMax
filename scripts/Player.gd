@@ -307,4 +307,10 @@ func _on_SpikeDetectArea_body_entered(body):
 		yield(get_tree().create_timer(1.0), "timeout")
 		self.global_position = room_entered_coordinates
 		get_tree().paused = false
+	# TODO: This is a mess, fix me.
+	var lb = body as LightBulb
+	if lb != null:
+		if lb.light_on == false:
+			get_node("../LightbulbsFound").found_new_light()
+		lb.light_on = true
 		
